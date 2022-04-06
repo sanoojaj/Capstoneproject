@@ -1,0 +1,51 @@
+---
+- hosts: localhost
+  remote_user: root
+  vars_file: setup.yml
+  tasks:
+  - name: Create security group
+    ec2_group:
+        name: ec2-slfinal
+        description: ec2-slfinal security group
+        region: us-east-1
+        rules:
+          - proto: tcp  # ssh
+            from_port: 22
+            to_port: 22
+            cidr_ip: 0.0.0.0/0
+          - proto: tcp  # http
+            from_port: 80
+            to_port: 80
+            cidr_ip: 0.0.0.0/0
+          - proto: tcp  # https
+            from_port: 443
+            to_port: 443
+            cidr_ip: 0.0.0.0/0
+        rules_egress:
+          - proto: all
+            cidr_ip: 0.0.0.0/0
+    register: firewall_sg
+
+
+  - name: Create a new EC2 key
+    ec2_key:
+      name: ec2-slfinal-key
+      region: us-east-1
+      key_material: "{{ lookup('file', '/root/.ssh/id_rsa.pub') }}"
+    
+
+  - name: Create an EC2 instance
+    ec2:
+      key_name: ec2-slfinal-key
+      region: us-east-1
+      group_id: "{{ firewall_sg.group_id }}"
+      instance_type: t2.micro
+      image: ami-0813288835c686b96
+      wait: yes
+      instance_tags:
+          Name: ec2-slfinal-key
+      count_tag: Name
+      exact_count: 1
+      vpc_subnet_id: subnet-0ae8268246e07503a
+      assign_public_ip: yes
+    register: ec2

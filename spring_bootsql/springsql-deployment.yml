@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: springsql
+  name: springsql
+  namespace: sqlgres
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: springsql
+      role: frontend
+  template:
+    metadata:
+      labels:
+        app: springsql
+        role: frontend
+    spec:
+      containers:
+      - image: bitnami/spring-cloud-dataflow
+        name: springsql
+        ports:
+        - containerPort: 8080
+          name: springsql
+        resources:
+           limits:
+             cpu: 200m  ## 20% of the 1 core cpu = 1000 milli cpu on the vm
