@@ -1,2 +1,2 @@
-# Infrasqlproject
-infra-project
+# Simlilearn-Capstone Project
+Simlilearn-Capstone Project
